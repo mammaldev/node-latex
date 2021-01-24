@@ -4,6 +4,14 @@ var fs      = require("fs");
 var fse     = require("fs-extra");
 var temp    = require("temp");
 var through = require("through");
+var os = require('os');
+
+// if temp's dependency 'osenv' is too early a version it gives incorrect tmp dir in docker container
+// can get around this by supplying temp.mkdir with the correct temp dir
+var tempAffixes = {
+  dir: os.tmpdir(),
+  prefix: 'node-latex'
+};
 
 //Eagerly create temporary directory
 var directory_built = false
@@ -11,7 +19,7 @@ var directory_built = false
   , directory_wait  = []
   , directory_path  = "/tmp"
   , directory_count = 0;
-temp.mkdir("node-latex", function(err, dirpath) {
+temp.mkdir(tempAffixes, function(err, dirpath) {
   if(!err) {
     process.on("exit", function() {
       fse.removeSync(dirpath);
